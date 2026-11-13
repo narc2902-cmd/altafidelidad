@@ -1,0 +1,916 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Verde | Plataforma Académica</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7f5;
+        }
+
+        :root {
+            --green-dark: #004d2c;
+            --green-main: #007a45;
+            --green-light: #e8f5ed;
+        }
+
+        .gradient-udec {
+            background: linear-gradient(135deg, #004d2c, #006b3f, #009353);
+        }
+
+        .glass {
+            background: rgba(255,255,255,.96);
+            backdrop-filter: blur(12px);
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8eeea;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(15, 45, 30, .035);
+            transition: .25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(15, 45, 30, .08);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            transition: .2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #e8f5ed;
+            color: #006b3f;
+        }
+
+        .nav-link.active {
+            font-weight: 700;
+        }
+
+        .progress-track {
+            height: 9px;
+            border-radius: 20px;
+            background: #e9efeb;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #006b3f, #19a567);
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .module-banner {
+            background:
+                radial-gradient(circle at 85% 20%, rgba(255,255,255,.17), transparent 30%),
+                linear-gradient(120deg, #004d2c, #007a45);
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, .55);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        #toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 200;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: .3s;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media(max-width: 768px) {
+            .desktop-profile {
+                display: none;
+            }
+
+            .main-container {
+                padding: 20px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- TOP NAVIGATION -->
+<nav class="gradient-udec text-white sticky top-0 z-50 shadow-lg">
+
+    <div class="max-w-[1500px] mx-auto px-5 lg:px-8">
+
+        <div class="h-[76px] flex items-center justify-between">
+
+            <!-- BRAND -->
+            <div class="flex items-center gap-3">
+
+                <div class="w-11 h-11 bg-white/15 border border-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-leaf text-2xl"></i>
+                </div>
+
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight">
+                        Campus Verde
+                    </h1>
+                    <p class="text-[10px] text-green-200 uppercase tracking-[2px]">
+                        Sede Girardot
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- NAVIGATION -->
+            <div class="hidden lg:flex items-center gap-8 text-sm text-green-100">
+
+                <a href="#inicio" class="hover:text-white transition">
+                    Inicio
+                </a>
+
+                <a href="#modulos" class="hover:text-white transition">
+                    Mis módulos
+                </a>
+
+                <a href="#equipo" class="hover:text-white transition">
+                    Mi equipo
+                </a>
+
+                <a href="#actividades" class="hover:text-white transition">
+                    Actividades
+                </a>
+
+            </div>
+
+            <!-- USER -->
+            <div class="flex items-center gap-5">
+
+                <button onclick="notify('No tienes notificaciones nuevas.')"
+                    class="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full"></span>
+                </button>
+
+                <div class="desktop-profile flex items-center gap-3 border-l border-white/20 pl-5">
+
+                    <div class="text-right">
+                        <p class="text-sm font-bold">
+                            Nicolás R y Valerie M
+                        </p>
+                        <p class="text-xs text-green-200">
+                            Ingeniería de Software
+                        </p>
+                    </div>
+
+                    <img
+                        src="https://ui-avatars.com/api/?name=Nicolas+Rueda&background=ffffff&color=006b3f&bold=true"
+                        alt="Avatar del estudiante"
+                        class="w-10 h-10 rounded-full border-2 border-green-300">
+
+                </div>
+
+                <button class="lg:hidden text-xl" onclick="toggleMenu()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- MOBILE MENU -->
+        <div id="mobileMenu" class="hidden lg:hidden pb-5 space-y-3 text-sm">
+            <a href="#inicio" class="block py-2">Inicio</a>
+            <a href="#modulos" class="block py-2">Mis módulos</a>
+            <a href="#equipo" class="block py-2">Mi equipo</a>
+            <a href="#actividades" class="block py-2">Actividades</a>
+        </div>
+
+    </div>
+
+</nav>
+
+<!-- MAIN -->
+<main id="inicio" class="main-container max-w-[1500px] mx-auto px-5 lg:px-8 py-8">
+
+    <!-- WELCOME -->
+    <section class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8">
+
+        <div>
+
+            <div class="flex items-center gap-2 text-xs font-bold text-green-700 mb-3 uppercase tracking-wider">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Gestión del Conocimiento
+            </div>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">
+                ¡Hola, Nicolás y Vale! 👋
+            </h2>
+
+            <p class="text-sm text-slate-500 mt-2">
+                Bienvenido a tu espacio académico. Consulta tus avances y continúa aprendiendo.
+            </p>
+
+        </div>
+
+        <button onclick="openModal()"
+            class="gradient-udec text-white px-6 py-3 rounded-xl shadow-lg shadow-green-900/10 hover:opacity-90 transition font-semibold text-sm flex items-center justify-center gap-2">
+
+            <i class="fa-solid fa-plus"></i>
+            Nuevo entregable
+
+        </button>
+
+    </section>
+
+    <!-- STATISTICS -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+        <div class="card p-5">
+
+            <div class="flex justify-between items-center">
+                <div class="w-11 h-11 rounded-xl bg-green-50 text-green-700 flex items-center justify-center">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                </div>
+
+                <span class="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full">
+                    Semestre
+                </span>
+            </div>
+
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-4">78%</h3>
+            <p class="text-xs text-slate-500 mt-1">Progreso académico</p>
+
+        </div>
+
+        <div class="card p-5">
+
+            <div class="flex justify-between items-center">
+                <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                </div>
+
+                <span class="text-xs text-slate-400">Actual</span>
+            </div>
+
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-4">05</h3>
+            <p class="text-xs text-slate-500 mt-1">Semestre académico</p>
+
+        </div>
+
+        <div class="card p-5">
+
+            <div class="flex justify-between items-center">
+                <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <i class="fa-solid fa-file-circle-check text-lg"></i>
+                </div>
+
+                <span class="text-xs text-slate-400">Registro</span>
+            </div>
+
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-4">04</h3>
+            <p class="text-xs text-slate-500 mt-1">Entregables de referencia</p>
+
+        </div>
+
+        <div class="card p-5">
+
+            <div class="flex justify-between items-center">
+                <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <i class="fa-solid fa-users text-lg"></i>
+                </div>
+
+                <span class="text-xs text-slate-400">Equipo</span>
+            </div>
+
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-4">03</h3>
+            <p class="text-xs text-slate-500 mt-1">Integrantes registrados</p>
+
+        </div>
+
+    </section>
+
+    <!-- MAIN GRID -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-7">
+
+        <!-- LEFT COLUMN -->
+        <div class="space-y-6">
+
+            <!-- PROGRESS -->
+            <article class="card p-6">
+
+                <div class="flex justify-between items-center mb-5">
+
+                    <h3 class="font-bold text-slate-800">
+                        Progreso del semestre
+                    </h3>
+
+                    <div class="w-9 h-9 rounded-lg bg-green-50 text-green-700 flex items-center justify-center">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+
+                </div>
+
+                <div class="flex items-end gap-2 mb-3">
+
+                    <span class="text-4xl font-extrabold text-green-700">
+                        78%
+                    </span>
+
+                    <span class="text-xs text-slate-400 mb-2">
+                        Completado
+                    </span>
+
+                </div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:78%"></div>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-400 mt-3">
+                    <span>Avance académico</span>
+                    <span>78 / 100</span>
+                </div>
+
+                <div class="mt-6 p-4 rounded-xl bg-green-50 border border-green-100">
+
+                    <div class="flex gap-3 items-center">
+
+                        <div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-green-600">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-bold text-green-800">
+                                Norma ISO 9241-210
+                            </p>
+                            <p class="text-xs text-green-700 mt-1">
+                                Contenido cubierto
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <!-- TEAM -->
+            <article id="equipo" class="card p-6">
+
+                <div class="flex justify-between items-center mb-5">
+
+                    <div>
+                        <h3 class="font-bold text-slate-800">
+                            Equipo de trabajo
+                        </h3>
+
+                        <p class="text-xs text-slate-400 mt-1">
+                            Integrantes del proyecto
+                        </p>
+                    </div>
+
+                    <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                        03 miembros
+                    </span>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <!-- MEMBER 1 -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition">
+
+                        <img
+                            src="https://ui-avatars.com/api/?name=Valerie+Martinez&background=e0f2fe&color=0369a1"
+                            class="avatar"
+                            alt="Valerie Martínez">
+
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-800">
+                                Valerie X. Martínez
+                            </p>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Investigación
+                            </p>
+                        </div>
+
+                        <span class="w-2.5 h-2.5 bg-green-500 rounded-full" title="Activo"></span>
+
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- MEMBER 2 -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition">
+
+                        <img
+                            src="https://ui-avatars.com/api/?name=Ashley+Tovar&background=fce7f3&color=be185d"
+                            class="avatar"
+                            alt="Ashley Tovar">
+
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-800">
+                                Ashley N. Tovar
+                            </p>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Documentación ISO
+                            </p>
+                        </div>
+
+                        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full" title="Estado no activo"></span>
+
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- MEMBER 3 -->
+                    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition">
+
+                        <img
+                            src="https://ui-avatars.com/api/?name=Nicolas+Vera&background=fef3c7&color=b45309"
+                            class="avatar"
+                            alt="Nicolás Vera">
+
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-800">
+                                Nicolás F. Vera
+                            </p>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Diseño UI/UX
+                            </p>
+                        </div>
+
+                        <span class="w-2.5 h-2.5 bg-green-500 rounded-full" title="Activo"></span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- FEATURED MODULE -->
+            <article id="modulos" class="card overflow-hidden">
+
+                <div class="module-banner h-36 relative overflow-hidden">
+
+                    <div class="absolute inset-0 flex items-center justify-between px-8">
+
+                        <div>
+                            <span class="text-xs text-green-100 uppercase tracking-widest font-semibold">
+                                Módulo destacado
+                            </span>
+
+                            <h3 class="text-2xl font-extrabold text-white mt-2">
+                                Laboratorio académico
+                            </h3>
+
+                            <p class="text-sm text-green-100 mt-1">
+                                Interacción Hombre-Máquina
+                            </p>
+                        </div>
+
+                        <i class="fa-solid fa-mobile-screen-button text-7xl text-white/20 hidden sm:block"></i>
+
+                    </div>
+
+                </div>
+
+                <div class="p-6 md:p-8">
+
+                    <div class="flex items-start gap-5">
+
+                        <div class="hidden sm:flex w-16 h-16 shrink-0 bg-green-50 text-green-700 rounded-2xl items-center justify-center text-3xl shadow-sm">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+
+                        <div class="flex-1">
+
+                            <div class="flex flex-wrap gap-2 mb-3">
+
+                                <span class="text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full font-semibold">
+                                    Desarrollo móvil
+                                </span>
+
+                                <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
+                                    React Native
+                                </span>
+
+                            </div>
+
+                            <h2 class="text-xl font-extrabold text-slate-800">
+                                Desarrollo Nativo Móvil
+                            </h2>
+
+                            <p class="text-sm text-slate-500 leading-relaxed mt-3">
+                                Laboratorio práctico de interacción hombre-máquina aplicando las 10 heurísticas de Nielsen sobre componentes React Native.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-7">
+
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-4">
+
+                            <i class="fa-regular fa-file-pdf text-red-500 text-lg"></i>
+
+                            <p class="text-sm font-bold text-slate-700 mt-2">
+                                Rúbrica
+                            </p>
+
+                            <p class="text-xs text-slate-400 mt-1">
+                                Material de evaluación
+                            </p>
+
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-4">
+
+                            <i class="fa-solid fa-laptop-code text-green-600 text-lg"></i>
+
+                            <p class="text-sm font-bold text-slate-700 mt-2">
+                                Laboratorio
+                            </p>
+
+                            <p class="text-xs text-slate-400 mt-1">
+                                Entorno de desarrollo
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 mt-6">
+
+                        <button onclick="notify('La rúbrica todavía no tiene un documento asociado.')"
+                            class="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition">
+
+                            <i class="fa-regular fa-file-pdf mr-2"></i>
+                            Ver rúbrica
+
+                        </button>
+
+                        <button onclick="notify('El acceso al laboratorio está pendiente de configuración.')"
+                            class="flex-1 py-3 px-4 rounded-xl gradient-udec text-white text-sm font-semibold shadow-lg hover:opacity-90 transition">
+
+                            Ingresar al laboratorio
+                            <i class="fa-solid fa-arrow-right ml-2"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <!-- SECONDARY MODULES -->
+            <div class="flex items-center justify-between">
+
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Otros módulos
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Recursos complementarios de aprendizaje
+                    </p>
+                </div>
+
+                <span class="text-xs text-green-700 font-semibold">
+                    02 módulos
+                </span>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- SHADOWING -->
+                <article class="card p-6">
+
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-5">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+
+                    <h4 class="font-bold text-slate-800">
+                        Metodología Shadowing
+                    </h4>
+
+                    <p class="text-sm text-slate-500 leading-relaxed mt-3">
+                        Evaluación de usabilidad mediante observación directa del usuario final.
+                    </p>
+
+                    <button onclick="notify('Módulo de metodología Shadowing seleccionado.')"
+                        class="mt-5 text-sm font-bold text-blue-700 hover:text-blue-900">
+
+                        Explorar módulo
+                        <i class="fa-solid fa-arrow-right ml-1"></i>
+
+                    </button>
+
+                </article>
+
+                <!-- SECURITY -->
+                <article class="card p-6">
+
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-5">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <h4 class="font-bold text-slate-800">
+                        Estándares de Seguridad
+                    </h4>
+
+                    <p class="text-sm text-slate-500 leading-relaxed mt-3">
+                        Aplicación de controles ISO/IEC 27002 en plataformas interactivas.
+                    </p>
+
+                    <button onclick="notify('Módulo de estándares de seguridad seleccionado.')"
+                        class="mt-5 text-sm font-bold text-amber-700 hover:text-amber-900">
+
+                        Explorar módulo
+                        <i class="fa-solid fa-arrow-right ml-1"></i>
+
+                    </button>
+
+                </article>
+
+            </div>
+
+            <!-- ACTIVITY -->
+            <article id="actividades" class="card p-6">
+
+                <div class="flex justify-between items-center mb-5">
+
+                    <div>
+                        <h3 class="font-bold text-slate-800">
+                            Resumen de actividades
+                        </h3>
+
+                        <p class="text-xs text-slate-400 mt-1">
+                            Seguimiento de tu espacio académico
+                        </p>
+                    </div>
+
+                    <div class="w-10 h-10 bg-green-50 rounded-xl text-green-700 flex items-center justify-center">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-9 h-9 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-slate-700">
+                                Norma ISO 9241-210
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                Contenido cubierto
+                            </p>
+                        </div>
+
+                        <span class="text-xs font-bold text-green-700">
+                            Completado
+                        </span>
+
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-slate-700">
+                                Desarrollo Nativo Móvil
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                Laboratorio práctico
+                            </p>
+                        </div>
+
+                        <span class="text-xs font-bold text-blue-700">
+                            En curso
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="mt-10 py-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-leaf text-green-700"></i>
+            <span class="text-sm font-bold text-slate-700">
+                Campus Verde
+            </span>
+        </div>
+
+        <p class="text-xs text-slate-400 text-center">
+            Plataforma académica · Sede Girardot
+        </p>
+
+        <p class="text-xs text-slate-400">
+            Interfaz de alta fidelidad
+        </p>
+
+    </footer>
+
+</main>
+
+<!-- NEW DELIVERABLE MODAL -->
+<div id="deliverableModal" class="modal">
+
+    <div class="bg-white rounded-2xl w-full max-w-md p-7 shadow-2xl">
+
+        <div class="flex justify-between items-center mb-6">
+
+            <div>
+                <h3 class="text-xl font-bold text-slate-800">
+                    Nuevo entregable
+                </h3>
+
+                <p class="text-xs text-slate-400 mt-1">
+                    Registra un nuevo trabajo académico.
+                </p>
+            </div>
+
+            <button onclick="closeModal()"
+                class="w-9 h-9 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+        <form id="deliverableForm" onsubmit="saveDeliverable(event)">
+
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Nombre del entregable
+            </label>
+
+            <input id="deliverableName"
+                type="text"
+                required
+                placeholder="Ej: Informe de laboratorio"
+                class="w-full border border-slate-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-green-600 mb-5">
+
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Descripción
+            </label>
+
+            <textarea id="deliverableDescription"
+                rows="3"
+                placeholder="Describe brevemente el trabajo..."
+                class="w-full border border-slate-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-green-600 mb-6 resize-none"></textarea>
+
+            <div class="flex gap-3">
+
+                <button type="button"
+                    onclick="closeModal()"
+                    class="flex-1 border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                    class="flex-1 gradient-udec rounded-xl py-3 text-sm font-semibold text-white">
+                    Registrar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="bg-slate-900 text-white px-5 py-4 rounded-xl shadow-xl text-sm">
+    <i class="fa-solid fa-circle-info mr-2"></i>
+    <span id="toastMessage"></span>
+</div>
+
+<script>
+
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+    }
+
+    function openModal() {
+        document.getElementById("deliverableModal").classList.add("show");
+    }
+
+    function closeModal() {
+        document.getElementById("deliverableModal").classList.remove("show");
+    }
+
+    let toastTimer;
+
+    function notify(message) {
+
+        const toast = document.getElementById("toast");
+
+        document.getElementById("toastMessage").textContent = message;
+
+        toast.classList.add("show");
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3500);
+    }
+
+    function saveDeliverable(event) {
+
+        event.preventDefault();
+
+        const name = document.getElementById("deliverableName").value.trim();
+        const description = document.getElementById("deliverableDescription").value.trim();
+
+        if (!name) {
+            notify("Escribe el nombre del entregable.");
+            return;
+        }
+
+        closeModal();
+
+        notify("Entregable registrado en esta demostración: " + name);
+
+        document.getElementById("deliverableForm").reset();
+    }
+
+</script>
+
+</body>
+</html>
